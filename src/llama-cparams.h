@@ -53,6 +53,8 @@ struct llama_cparams {
     bool auto_fhc;
     bool fused_hc_mix;       // use the fused hyper-connection mixer (qwen4exp decode)
     bool fused_hc_combine;   // use the fused hyper-connection combine (qwen4exp decode)
+    bool fused_top_k_mask;   // use fused top-k sparse attention mask
+    bool auto_ftkm;
     bool no_perf;
     bool warmup;             // TODO: remove [TAG_LLAMA_GRAPH_NO_WARMUP]
     bool op_offload;
@@ -61,6 +63,9 @@ struct llama_cparams {
     ggml_type type_k;          // KV cache types, as handed to the memory module (the qwen4exp
     ggml_type type_v;          // QSA arm selection needs to know what the sparse kernel can read)
     bool pipeline_parallel;
+    bool training;           // set by llama_opt_init()
+
+    size_t moe_cache_size;
 
     std::vector<bool> embeddings_layer_inp; // [n_layer()] extract input embeddings for layer
 
