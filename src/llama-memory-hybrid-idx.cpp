@@ -63,9 +63,11 @@ llama_memory_hybrid_idx::llama_memory_hybrid_idx(
     mem_idx(filter_idx == nullptr ? nullptr : [&] {
         // MQA with a single key head of indexer_head_size, as llama_kv_cache_dsa shapes its own
         std::fill(hparams_idx.n_head_kv_arr.begin(), hparams_idx.n_head_kv_arr.end(), 1);
-        // a k-pool indexer caches its per-token rows and the pooled key side by side
-        // (glm5-next: key | gate | pooled, qwen4exp: key | pooled)
-        hparams_idx.n_embd_head_k_full = model.hparams.indexer_head_size * (model.hparams.indexer_kpool > 0 ? model.hparams.indexer_kpool_row : 1);
+        // upstream keys the inline pooled-row width off indexer_kpool (glm5-next stores
+        // key | gate | pooled in the K row); qwen4exp keeps its pooled keys in separate
+        // cache_idx_pool tensors, so its idx row stays single-width
+        hparams_idx.n_embd_head_k_full = model.hparams.indexer_head_size *
+            (model.hparams.indexer_kpool > 0 && model.arch != LLM_ARCH_QWEN4EXP ? model.hparams.indexer_kpool_row : 1);
 
         // the cached indexer keys are raw, rotation happens after pooling at read time, so a
         // K-shift must not rotate them while the stream copies in the same update still apply

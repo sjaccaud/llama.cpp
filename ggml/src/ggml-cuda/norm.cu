@@ -790,7 +790,7 @@ void ggml_cuda_op_rms_norm_q8_1(ggml_backend_cuda_context & ctx, ggml_tensor * n
 
     if (found) {
         // another node already quantized this tensor; run the plain norm+mul
-        rms_norm_mul_f32_cuda(src0_d, mul_d, nullptr, dst_d,
+        rms_norm_mul_f32_cuda(src0, weight, nullptr, dst_d,
                               ncols, dst->ne[1], dst->ne[2], dst->ne[3],
                               s01, s02, s03,
                               mul_s01, weight->nb[2]/ggml_type_size(weight->type), weight->nb[3]/ggml_type_size(weight->type),
